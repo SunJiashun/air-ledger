@@ -1,0 +1,204 @@
+<h2>APP 页面结构与交互流程</h2>
+<p class="subtitle">4 个主页面 + 记账弹窗</p>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;">
+
+  <!-- Tab 1: Home -->
+  <div style="background:#F5F0EB;border-radius:16px;padding:16px;min-height:400px;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size:11px;color:#9B8E82;margin-bottom:4px;">Tab 1</div>
+    <div style="font-size:16px;font-weight:700;color:#5B5248;margin-bottom:12px;">首页 / 账单</div>
+
+    <div style="background:white;border-radius:10px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;color:#9B8E82;">4月 总支出</div>
+      <div style="font-size:22px;font-weight:700;color:#5B5248;">¥3,680.50</div>
+      <div style="font-size:10px;color:#8BA89D;">收入 ¥12,000</div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:11px;color:#5B5248;font-weight:600;">◀ 2026年4月 ▶</span>
+      <span style="font-size:10px;color:#C4A882;">筛选 ▾</span>
+    </div>
+
+    <div style="background:white;border-radius:8px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <span style="font-size:14px;">🍜</span>
+        <span style="font-size:11px;color:#5B5248;margin-left:4px;">午餐</span>
+      </div>
+      <span style="font-size:12px;color:#C49BA0;font-weight:600;">-¥35</span>
+    </div>
+    <div style="background:white;border-radius:8px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <span style="font-size:14px;">🚇</span>
+        <span style="font-size:11px;color:#5B5248;margin-left:4px;">地铁</span>
+      </div>
+      <span style="font-size:12px;color:#C49BA0;font-weight:600;">-¥6</span>
+    </div>
+    <div style="background:white;border-radius:8px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <span style="font-size:14px;">💰</span>
+        <span style="font-size:11px;color:#5B5248;margin-left:4px;">工资</span>
+      </div>
+      <span style="font-size:12px;color:#8BA89D;font-weight:600;">+¥12,000</span>
+    </div>
+
+    <div style="font-size:9px;color:#B0A69C;margin-top:8px;text-align:center;">← 左滑删除条目</div>
+
+    <div style="position:absolute;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;background:#C4A882;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;box-shadow:0 3px 8px rgba(196,168,130,0.4);">+</div>
+  </div>
+
+  <!-- Tab 2: Stats -->
+  <div style="background:#F5F0EB;border-radius:16px;padding:16px;min-height:400px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size:11px;color:#9B8E82;margin-bottom:4px;">Tab 2</div>
+    <div style="font-size:16px;font-weight:700;color:#5B5248;margin-bottom:12px;">统计</div>
+
+    <div style="display:flex;gap:4px;margin-bottom:12px;">
+      <div style="flex:1;text-align:center;padding:6px;background:#C4A882;border-radius:6px;color:white;font-size:11px;">周</div>
+      <div style="flex:1;text-align:center;padding:6px;background:#E8DDD3;border-radius:6px;color:#8B7E72;font-size:11px;">月</div>
+      <div style="flex:1;text-align:center;padding:6px;background:#E8DDD3;border-radius:6px;color:#8B7E72;font-size:11px;">年</div>
+    </div>
+
+    <!-- Donut chart mock -->
+    <div style="width:120px;height:120px;margin:0 auto 12px;border-radius:50%;background:conic-gradient(#C4A882 0% 35%,#8BA89D 35% 55%,#B5A0C4 55% 72%,#C49BA0 72% 85%,#8BA4B5 85% 100%);display:flex;align-items:center;justify-content:center;">
+      <div style="width:70px;height:70px;border-radius:50%;background:#F5F0EB;display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;">
+          <div style="font-size:8px;color:#9B8E82;">总计</div>
+          <div style="font-size:12px;font-weight:700;color:#5B5248;">¥3.6k</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:10px;color:#9B8E82;text-align:center;margin-bottom:10px;">各类支出占比</div>
+
+    <!-- Bar chart mock -->
+    <div style="display:flex;align-items:flex-end;gap:4px;height:60px;padding:0 4px;">
+      <div style="flex:1;background:#C4A882;border-radius:3px 3px 0 0;height:40%;"></div>
+      <div style="flex:1;background:#C4A882;border-radius:3px 3px 0 0;height:65%;"></div>
+      <div style="flex:1;background:#C4A882;border-radius:3px 3px 0 0;height:30%;"></div>
+      <div style="flex:1;background:#C4A882;border-radius:3px 3px 0 0;height:80%;"></div>
+      <div style="flex:1;background:#C4A882;border-radius:3px 3px 0 0;height:55%;"></div>
+      <div style="flex:1;background:#C4A882;border-radius:3px 3px 0 0;height:90%;"></div>
+      <div style="flex:1;background:#C4A882;border-radius:3px 3px 0 0;height:45%;"></div>
+    </div>
+    <div style="display:flex;gap:4px;padding:0 4px;">
+      <div style="flex:1;text-align:center;font-size:8px;color:#9B8E82;">一</div>
+      <div style="flex:1;text-align:center;font-size:8px;color:#9B8E82;">二</div>
+      <div style="flex:1;text-align:center;font-size:8px;color:#9B8E82;">三</div>
+      <div style="flex:1;text-align:center;font-size:8px;color:#9B8E82;">四</div>
+      <div style="flex:1;text-align:center;font-size:8px;color:#9B8E82;">五</div>
+      <div style="flex:1;text-align:center;font-size:8px;color:#9B8E82;">六</div>
+      <div style="flex:1;text-align:center;font-size:8px;color:#9B8E82;">日</div>
+    </div>
+    <div style="font-size:10px;color:#9B8E82;text-align:center;margin-top:6px;">每日支出趋势</div>
+  </div>
+
+  <!-- Add Bill Modal -->
+  <div style="background:#F5F0EB;border-radius:16px;padding:16px;min-height:400px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size:11px;color:#9B8E82;margin-bottom:4px;">弹窗</div>
+    <div style="font-size:16px;font-weight:700;color:#5B5248;margin-bottom:12px;">记一笔</div>
+
+    <div style="display:flex;gap:4px;margin-bottom:12px;">
+      <div style="flex:1;text-align:center;padding:6px;background:#C49BA0;border-radius:6px;color:white;font-size:11px;">支出</div>
+      <div style="flex:1;text-align:center;padding:6px;background:#E8DDD3;border-radius:6px;color:#8B7E72;font-size:11px;">收入</div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:12px;">
+      <div style="font-size:32px;font-weight:700;color:#5B5248;">¥ 35.00</div>
+    </div>
+
+    <div style="font-size:10px;color:#9B8E82;margin-bottom:6px;">选择分类</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+      <div style="text-align:center;padding:8px 4px;background:#C4A882;border-radius:8px;">
+        <div style="font-size:18px;">🍜</div>
+        <div style="font-size:9px;color:white;margin-top:2px;">餐饮</div>
+      </div>
+      <div style="text-align:center;padding:8px 4px;background:white;border-radius:8px;">
+        <div style="font-size:18px;">🚇</div>
+        <div style="font-size:9px;color:#5B5248;margin-top:2px;">交通</div>
+      </div>
+      <div style="text-align:center;padding:8px 4px;background:white;border-radius:8px;">
+        <div style="font-size:18px;">🛍️</div>
+        <div style="font-size:9px;color:#5B5248;margin-top:2px;">购物</div>
+      </div>
+      <div style="text-align:center;padding:8px 4px;background:white;border-radius:8px;">
+        <div style="font-size:18px;">🎮</div>
+        <div style="font-size:9px;color:#5B5248;margin-top:2px;">娱乐</div>
+      </div>
+      <div style="text-align:center;padding:8px 4px;background:white;border-radius:8px;">
+        <div style="font-size:18px;">🏠</div>
+        <div style="font-size:9px;color:#5B5248;margin-top:2px;">居住</div>
+      </div>
+      <div style="text-align:center;padding:8px 4px;background:white;border-radius:8px;">
+        <div style="font-size:18px;">💊</div>
+        <div style="font-size:9px;color:#5B5248;margin-top:2px;">医疗</div>
+      </div>
+      <div style="text-align:center;padding:8px 4px;background:white;border-radius:8px;">
+        <div style="font-size:18px;">📚</div>
+        <div style="font-size:9px;color:#5B5248;margin-top:2px;">教育</div>
+      </div>
+      <div style="text-align:center;padding:8px 4px;background:white;border-radius:8px;">
+        <div style="font-size:18px;">➕</div>
+        <div style="font-size:9px;color:#5B5248;margin-top:2px;">自定义</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <div style="flex:1;background:white;border-radius:8px;padding:8px;font-size:11px;color:#9B8E82;">📅 今天</div>
+      <div style="flex:1;background:white;border-radius:8px;padding:8px;font-size:11px;color:#9B8E82;">📝 备注</div>
+    </div>
+
+    <div style="background:#C4A882;border-radius:10px;padding:10px;text-align:center;color:white;font-size:14px;font-weight:600;margin-top:8px;">保存</div>
+
+    <div style="font-size:9px;color:#B0A69C;margin-top:8px;text-align:center;">记账流程：输金额 → 选分类 → 保存（3步）</div>
+  </div>
+
+  <!-- Tab 3: Settings -->
+  <div style="background:#F5F0EB;border-radius:16px;padding:16px;min-height:400px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size:11px;color:#9B8E82;margin-bottom:4px;">Tab 3</div>
+    <div style="font-size:16px;font-weight:700;color:#5B5248;margin-bottom:12px;">设置</div>
+
+    <div style="background:white;border-radius:10px;overflow:hidden;margin-bottom:12px;">
+      <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F0EBE5;">
+        <span style="font-size:12px;color:#5B5248;">🎨 主题切换</span>
+        <span style="font-size:10px;color:#C4A882;">莫兰迪 ▸</span>
+      </div>
+      <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F0EBE5;">
+        <span style="font-size:12px;color:#5B5248;">📂 分类管理</span>
+        <span style="font-size:10px;color:#9B8E82;">▸</span>
+      </div>
+      <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F0EBE5;">
+        <span style="font-size:12px;color:#5B5248;">👥 共享账本</span>
+        <span style="font-size:10px;color:#9B8E82;">▸</span>
+      </div>
+      <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F0EBE5;">
+        <span style="font-size:12px;color:#5B5248;">☁️ 同步状态</span>
+        <span style="font-size:10px;color:#8BA89D;">已同步 ✓</span>
+      </div>
+      <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;color:#5B5248;">📤 导出数据</span>
+        <span style="font-size:10px;color:#9B8E82;">▸</span>
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:10px;overflow:hidden;">
+      <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F0EBE5;">
+        <span style="font-size:12px;color:#5B5248;">🔑 账户</span>
+        <span style="font-size:10px;color:#9B8E82;">user@email ▸</span>
+      </div>
+      <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;color:#5B5248;">ℹ️ 关于</span>
+        <span style="font-size:10px;color:#9B8E82;">v1.0 ▸</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:16px;padding:16px;background:rgba(100,100,100,0.1);border-radius:8px;">
+  <h4 style="margin:0 0 8px;font-size:14px;">交互要点</h4>
+  <ul style="margin:0;padding-left:20px;font-size:13px;color:#666;line-height:1.8;">
+    <li><strong>首页</strong>：月份左右切换 + 筛选器（金额/分类）+ 左滑删除 + 右下角"+"浮动按钮</li>
+    <li><strong>记账弹窗</strong>：底部弹出 → 输金额 → 选分类 → 保存（3步完成）</li>
+    <li><strong>统计页</strong>：周/月/年 Tab 切换 + 环形图 + 柱状图</li>
+    <li><strong>设置页</strong>：主题切换、分类管理、共享账本、同步状态、数据导出</li>
+  </ul>
+</div>

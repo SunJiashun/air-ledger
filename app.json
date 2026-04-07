@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "minimalist-ledger",
+    "name": "轻记账",
     "slug": "minimalist-ledger",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "minimalist-ledger",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -16,15 +17,33 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.minimalistledger.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#F5F0EB"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "edgeToEdgeEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1ed5430a-7465-4f85-842e-aeea32ae7e54"
+      }
+    },
+    "owner": "sunjs",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1ed5430a-7465-4f85-842e-aeea32ae7e54"
     }
   }
 }

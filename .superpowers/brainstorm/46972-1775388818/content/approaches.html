@@ -1,0 +1,58 @@
+<h2>技术方案对比</h2>
+<p class="subtitle">三种架构方向，各有取舍</p>
+
+<div class="options">
+  <div class="option" data-choice="lightweight" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>轻量方案（推荐 ⭐）</h3>
+      <p><strong>状态管理:</strong> Zustand — 极简，无 boilerplate</p>
+      <p><strong>数据库:</strong> expo-sqlite — Expo 官方支持，SQL 查询灵活</p>
+      <p><strong>图表:</strong> react-native-gifted-charts — 动画流畅，支持环形图+柱状图</p>
+      <p><strong>导航:</strong> Expo Router (文件路由) — 类似 Next.js，开发体验好</p>
+      <p><strong>UI 组件:</strong> 手写组件 + react-native-reanimated 动效</p>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>优势</h4><ul><li>依赖少，包体积小</li><li>代码量适中，开发快</li><li>Zustand 上手零门槛</li><li>Expo Router 文件路由很直观</li></ul></div>
+        <div class="cons"><h4>劣势</h4><ul><li>图表定制性中等</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="balanced" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>均衡方案</h3>
+      <p><strong>状态管理:</strong> Redux Toolkit — 成熟生态，DevTools 调试方便</p>
+      <p><strong>数据库:</strong> expo-sqlite — 同上</p>
+      <p><strong>图表:</strong> Victory Native — 功能强大，高度可定制</p>
+      <p><strong>导航:</strong> Expo Router</p>
+      <p><strong>UI 组件:</strong> react-native-paper + reanimated</p>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>优势</h4><ul><li>Redux 生态成熟，有中间件</li><li>Victory 图表高度可定制</li><li>Paper 提供现成 Material 组件</li></ul></div>
+        <div class="cons"><h4>劣势</h4><ul><li>Redux 模板代码多</li><li>Victory 依赖较重</li><li>对简单 APP 来说过度设计</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="echarts" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>重图表方案</h3>
+      <p><strong>状态管理:</strong> Zustand</p>
+      <p><strong>数据库:</strong> expo-sqlite</p>
+      <p><strong>图表:</strong> ECharts (wrn-echarts) — 最强图表能力</p>
+      <p><strong>导航:</strong> Expo Router</p>
+      <p><strong>UI 组件:</strong> 手写组件 + reanimated</p>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>优势</h4><ul><li>ECharts 图表极其丰富</li><li>与 Web 版 ECharts API 一致</li></ul></div>
+        <div class="cons"><h4>劣势</h4><ul><li>基于 WebView 渲染，性能略差</li><li>包体积大</li><li>原生交互手感打折</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:20px;padding:16px;background:rgba(100,100,100,0.1);border-radius:8px;">
+  <p style="margin:0;font-size:14px;color:#888;">
+    💡 <strong>推荐方案 A</strong>：对于"极简账单"这种定位清晰的 APP，轻量方案最匹配。Zustand + expo-sqlite + gifted-charts 组合简洁高效，完全满足环形图和柱状图需求，且开发速度最快。
+  </p>
+</div>

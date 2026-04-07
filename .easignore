@@ -1,0 +1,6 @@
+package-lock.json
+.superpowers/
+docs/
+scripts/
+dist/
+supabase-setup.sql

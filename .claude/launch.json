@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "/Users/bytedance/.nvm/versions/node/v20.12.2/bin/node",
+      "runtimeArgs": [".claude/serve.js"],
+      "port": 3001
+    }
+  ]
+}

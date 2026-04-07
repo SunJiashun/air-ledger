@@ -1,0 +1,94 @@
+<h2>配色方案选择</h2>
+<p class="subtitle">选择你更喜欢的视觉风格</p>
+
+<div class="cards" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;">
+  <!-- Option A: Morandi -->
+  <div class="card" data-choice="morandi" onclick="toggleSelect(this)" style="overflow:hidden;">
+    <div class="card-image" style="padding:0;">
+      <div style="background:#F5F0EB;padding:20px;border-radius:8px 8px 0 0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <span style="font-size:18px;font-weight:600;color:#5B5248;">极简账单</span>
+          <div style="width:36px;height:36px;border-radius:50%;background:#C4A882;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;">+</div>
+        </div>
+        <div style="background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="font-size:12px;color:#9B8E82;margin-bottom:4px;">本月支出</div>
+          <div style="font-size:28px;font-weight:700;color:#5B5248;">¥3,680.50</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;background:#E8DDD3;border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#8B7E72;">餐饮</div>
+            <div style="font-size:14px;font-weight:600;color:#C4A882;">¥1,200</div>
+          </div>
+          <div style="flex:1;background:#D5CDC4;border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#8B7E72;">交通</div>
+            <div style="font-size:14px;font-weight:600;color:#A0917E;">¥580</div>
+          </div>
+          <div style="flex:1;background:#C8D5D0;border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#7A8B84;">购物</div>
+            <div style="font-size:14px;font-weight:600;color:#8BA89D;">¥900</div>
+          </div>
+        </div>
+        <!-- Color palette -->
+        <div style="display:flex;gap:6px;margin-top:16px;justify-content:center;">
+          <div style="width:24px;height:24px;border-radius:50%;background:#C4A882;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#A0917E;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#8BA89D;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#B5A0C4;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#C49BA0;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#8BA4B5;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 莫兰迪色系（浅色）</h3>
+      <p>柔和灰调，优雅温润。大量留白，护眼舒适。适合日常频繁使用。</p>
+    </div>
+  </div>
+
+  <!-- Option B: Dark Mode -->
+  <div class="card" data-choice="dark" onclick="toggleSelect(this)" style="overflow:hidden;">
+    <div class="card-image" style="padding:0;">
+      <div style="background:#1A1A2E;padding:20px;border-radius:8px 8px 0 0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <span style="font-size:18px;font-weight:600;color:#E0E0E0;">极简账单</span>
+          <div style="width:36px;height:36px;border-radius:50%;background:#6C63FF;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;">+</div>
+        </div>
+        <div style="background:#16213E;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #2A2D4A;">
+          <div style="font-size:12px;color:#8888AA;margin-bottom:4px;">本月支出</div>
+          <div style="font-size:28px;font-weight:700;color:#E0E0E0;">¥3,680.50</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;background:#1E2A4A;border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#8888AA;">餐饮</div>
+            <div style="font-size:14px;font-weight:600;color:#FF6B6B;">¥1,200</div>
+          </div>
+          <div style="flex:1;background:#1E2A4A;border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#8888AA;">交通</div>
+            <div style="font-size:14px;font-weight:600;color:#4ECDC4;">¥580</div>
+          </div>
+          <div style="flex:1;background:#1E2A4A;border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#8888AA;">购物</div>
+            <div style="font-size:14px;font-weight:600;color:#45B7D1;">¥900</div>
+          </div>
+        </div>
+        <!-- Color palette -->
+        <div style="display:flex;gap:6px;margin-top:16px;justify-content:center;">
+          <div style="width:24px;height:24px;border-radius:50%;background:#FF6B6B;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#4ECDC4;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#45B7D1;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#6C63FF;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#F9CA24;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#A29BFE;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 深色模式</h3>
+      <p>暗色背景，亮色点缀。现代感强，适合夜间使用。对比度高，数据醒目。</p>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:20px;padding:16px;background:rgba(100,100,100,0.1);border-radius:8px;">
+  <p style="margin:0;font-size:14px;color:#888;">💡 两种模式也可以都支持（系统自动切换），但初始版本建议先确定一个主风格。</p>
+</div>

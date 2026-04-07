@@ -1,0 +1,203 @@
+<h2>技术架构设计</h2>
+<p class="subtitle">离线优先 + 云同步的分层架构</p>
+
+<div style="max-width:800px;margin:0 auto;">
+
+  <!-- Architecture Diagram -->
+  <div class="mockup" style="margin-bottom:24px;">
+    <div class="mockup-header">架构总览</div>
+    <div class="mockup-body" style="padding:24px;background:#FAFAFA;">
+
+      <div style="display:flex;gap:16px;align-items:stretch;">
+
+        <!-- UI Layer -->
+        <div style="flex:1;background:#F5F0EB;border-radius:12px;padding:16px;border:2px solid #C4A882;">
+          <div style="font-size:13px;font-weight:700;color:#C4A882;margin-bottom:8px;text-align:center;">UI 层</div>
+          <div style="font-size:11px;color:#5B5248;line-height:1.8;">
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">📱 Expo Router（文件路由）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">🎨 Theme Provider（莫兰迪/深色）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">✨ Reanimated 3（动画/手势）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;">📊 Gifted Charts（图表）</div>
+          </div>
+        </div>
+
+        <!-- State Layer -->
+        <div style="flex:1;background:#E8F0EB;border-radius:12px;padding:16px;border:2px solid #8BA89D;">
+          <div style="font-size:13px;font-weight:700;color:#8BA89D;margin-bottom:8px;text-align:center;">状态层</div>
+          <div style="font-size:11px;color:#5B5248;line-height:1.8;">
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">🐻 Zustand Store</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">├─ billStore（账单 CRUD）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">├─ categoryStore（分类管理）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">├─ themeStore（主题切换）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;">└─ syncStore（同步状态）</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow down -->
+      <div style="text-align:center;font-size:20px;color:#999;margin:12px 0;">▼</div>
+
+      <div style="display:flex;gap:16px;align-items:stretch;">
+
+        <!-- Data Layer -->
+        <div style="flex:1;background:#EBE8F0;border-radius:12px;padding:16px;border:2px solid #B5A0C4;">
+          <div style="font-size:13px;font-weight:700;color:#B5A0C4;margin-bottom:8px;text-align:center;">数据层</div>
+          <div style="font-size:11px;color:#5B5248;line-height:1.8;">
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">💾 expo-sqlite（本地数据库）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">├─ bills 表</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">├─ categories 表</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;">└─ sync_queue 表（待同步队列）</div>
+          </div>
+        </div>
+
+        <!-- Sync Layer -->
+        <div style="flex:1;background:#F0EBE8;border-radius:12px;padding:16px;border:2px solid #C49BA0;">
+          <div style="font-size:13px;font-weight:700;color:#C49BA0;margin-bottom:8px;text-align:center;">同步层</div>
+          <div style="font-size:11px;color:#5B5248;line-height:1.8;">
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">☁️ Supabase</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">├─ Auth（登录/注册）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">├─ Database（PostgreSQL）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;margin-bottom:4px;">├─ Realtime（实时同步）</div>
+            <div style="background:white;border-radius:6px;padding:6px 8px;">└─ RLS（行级安全策略）</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Sync Flow -->
+  <div class="mockup" style="margin-bottom:24px;">
+    <div class="mockup-header">离线优先同步流程</div>
+    <div class="mockup-body" style="padding:24px;background:#FAFAFA;">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;">
+        <div style="background:#C4A882;color:white;padding:10px 14px;border-radius:8px;font-size:12px;text-align:center;">
+          <strong>1. 记账</strong><br/>写入本地 SQLite
+        </div>
+        <div style="font-size:18px;color:#999;">→</div>
+        <div style="background:#8BA89D;color:white;padding:10px 14px;border-radius:8px;font-size:12px;text-align:center;">
+          <strong>2. 入队</strong><br/>加入 sync_queue
+        </div>
+        <div style="font-size:18px;color:#999;">→</div>
+        <div style="background:#B5A0C4;color:white;padding:10px 14px;border-radius:8px;font-size:12px;text-align:center;">
+          <strong>3. 检测网络</strong><br/>NetInfo 监听
+        </div>
+        <div style="font-size:18px;color:#999;">→</div>
+        <div style="background:#C49BA0;color:white;padding:10px 14px;border-radius:8px;font-size:12px;text-align:center;">
+          <strong>4. 上传</strong><br/>批量同步到 Supabase
+        </div>
+        <div style="font-size:18px;color:#999;">→</div>
+        <div style="background:#8BA4B5;color:white;padding:10px 14px;border-radius:8px;font-size:12px;text-align:center;">
+          <strong>5. 确认</strong><br/>清除 sync_queue
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:#FFF8E1;border-radius:8px;font-size:12px;color:#8B7E3B;">
+        ⚡ <strong>冲突策略</strong>：使用 updated_at 时间戳，以最后修改为准（Last Write Wins）。共享账本场景下，每条记录带 user_id，不同用户的记录不冲突。
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Model -->
+  <div class="mockup" style="margin-bottom:24px;">
+    <div class="mockup-header">数据模型</div>
+    <div class="mockup-body" style="padding:24px;background:#FAFAFA;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+        <div style="background:white;border-radius:8px;padding:14px;border:1px solid #E0D8D0;">
+          <div style="font-size:13px;font-weight:700;color:#5B5248;margin-bottom:8px;">📋 bills 表</div>
+          <div style="font-size:11px;color:#666;line-height:2;">
+            <code>id</code> — UUID 主键<br/>
+            <code>amount</code> — 金额 (REAL)<br/>
+            <code>type</code> — 'income' | 'expense'<br/>
+            <code>category_id</code> — 分类 FK<br/>
+            <code>date</code> — 日期<br/>
+            <code>note</code> — 备注（可选）<br/>
+            <code>user_id</code> — 用户 ID<br/>
+            <code>ledger_id</code> — 账本 ID<br/>
+            <code>created_at</code> — 创建时间<br/>
+            <code>updated_at</code> — 修改时间<br/>
+            <code>is_deleted</code> — 软删除标记
+          </div>
+        </div>
+
+        <div style="background:white;border-radius:8px;padding:14px;border:1px solid #E0D8D0;">
+          <div style="font-size:13px;font-weight:700;color:#5B5248;margin-bottom:8px;">🏷️ categories 表</div>
+          <div style="font-size:11px;color:#666;line-height:2;">
+            <code>id</code> — UUID 主键<br/>
+            <code>name</code> — 分类名称<br/>
+            <code>icon</code> — emoji 图标<br/>
+            <code>type</code> — 'income' | 'expense'<br/>
+            <code>color</code> — 图表颜色<br/>
+            <code>sort_order</code> — 排序<br/>
+            <code>is_custom</code> — 是否自定义<br/>
+            <code>user_id</code> — 创建者<br/>
+            <code>is_deleted</code> — 软删除标记
+          </div>
+        </div>
+
+        <div style="background:white;border-radius:8px;padding:14px;border:1px solid #E0D8D0;">
+          <div style="font-size:13px;font-weight:700;color:#5B5248;margin-bottom:8px;">📚 ledgers 表（账本）</div>
+          <div style="font-size:11px;color:#666;line-height:2;">
+            <code>id</code> — UUID 主键<br/>
+            <code>name</code> — 账本名称<br/>
+            <code>owner_id</code> — 创建者<br/>
+            <code>created_at</code> — 创建时间
+          </div>
+        </div>
+
+        <div style="background:white;border-radius:8px;padding:14px;border:1px solid #E0D8D0;">
+          <div style="font-size:13px;font-weight:700;color:#5B5248;margin-bottom:8px;">👥 ledger_members 表</div>
+          <div style="font-size:11px;color:#666;line-height:2;">
+            <code>ledger_id</code> — 账本 FK<br/>
+            <code>user_id</code> — 用户 FK<br/>
+            <code>role</code> — 'owner' | 'member'<br/>
+            <code>joined_at</code> — 加入时间
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Tech Stack Summary -->
+  <div class="mockup">
+    <div class="mockup-header">技术栈总览</div>
+    <div class="mockup-body" style="padding:24px;background:#FAFAFA;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <tr style="border-bottom:1px solid #E0D8D0;">
+          <td style="padding:8px;font-weight:600;color:#5B5248;width:30%;">框架</td>
+          <td style="padding:8px;color:#666;">Expo SDK 52 + Expo Router v4</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E0D8D0;">
+          <td style="padding:8px;font-weight:600;color:#5B5248;">语言</td>
+          <td style="padding:8px;color:#666;">TypeScript</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E0D8D0;">
+          <td style="padding:8px;font-weight:600;color:#5B5248;">状态管理</td>
+          <td style="padding:8px;color:#666;">Zustand</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E0D8D0;">
+          <td style="padding:8px;font-weight:600;color:#5B5248;">本地数据库</td>
+          <td style="padding:8px;color:#666;">expo-sqlite</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E0D8D0;">
+          <td style="padding:8px;font-weight:600;color:#5B5248;">云端服务</td>
+          <td style="padding:8px;color:#666;">Supabase（Auth + PostgreSQL + Realtime）</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E0D8D0;">
+          <td style="padding:8px;font-weight:600;color:#5B5248;">图表</td>
+          <td style="padding:8px;color:#666;">react-native-gifted-charts</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E0D8D0;">
+          <td style="padding:8px;font-weight:600;color:#5B5248;">动画</td>
+          <td style="padding:8px;color:#666;">react-native-reanimated 3 + Gesture Handler</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;font-weight:600;color:#5B5248;">网络检测</td>
+          <td style="padding:8px;color:#666;">@react-native-community/netinfo</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
