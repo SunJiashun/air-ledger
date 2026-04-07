@@ -59,11 +59,25 @@ if (fs.existsSync(redirectsSrc)) {
 
 fs.writeFileSync(indexPath, html);
 
-// Fix 4: rewrite asset paths inside JS bundles (fonts, images loaded at runtime)
+// Fix 4a: Move assets out of node_modules/ folder so that .gitignore's
+// node_modules rule doesn't skip them when pushing to git-based hosts (GitHub Pages).
+// Rename dist/assets/node_modules -> dist/assets/_nm
+const oldAssetsDir = path.join(distDir, 'assets', 'node_modules');
+const newAssetsDir = path.join(distDir, 'assets', '_nm');
+if (fs.existsSync(oldAssetsDir)) {
+  if (fs.existsSync(newAssetsDir)) {
+    fs.rmSync(newAssetsDir, { recursive: true, force: true });
+  }
+  fs.renameSync(oldAssetsDir, newAssetsDir);
+}
+
+// Fix 4b: rewrite asset paths inside JS bundles (fonts, images loaded at runtime)
 if (BASE_PATH && BASE_PATH !== '/') {
   function rewriteBundle(file) {
     let content = fs.readFileSync(file, 'utf-8');
-    // Rewrite "/assets/..." paths inside strings to include base path
+    // First rewrite node_modules -> _nm to match the renamed folder
+    content = content.replace(/\/assets\/node_modules\//g, '/assets/_nm/');
+    // Then prefix "/assets/..." paths with base path
     content = content.replace(/"\/assets\//g, `"${BASE_PATH}/assets/`);
     content = content.replace(/'\/assets\//g, `'${BASE_PATH}/assets/`);
     fs.writeFileSync(file, content);
