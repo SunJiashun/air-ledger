@@ -12,8 +12,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
+import { fullSync } from '../src/sync/syncEngine';
 import { useTheme } from '../src/theme/ThemeProvider';
 import { getDatabase } from '../src/db/database';
 import { useAuthStore } from '../src/stores/authStore';
@@ -44,6 +45,7 @@ export default function LedgerManageScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const userId = useAuthStore((s) => s.userId);
+  const userEmail = useAuthStore((s) => s.email);
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const isOnline = useSyncStore((s) => s.isOnline);
 
@@ -52,6 +54,12 @@ export default function LedgerManageScreen() {
 
   const [ledgers, setLedgers] = useState<Ledger[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Members modal state
+  const [membersModalVisible, setMembersModalVisible] = useState(false);
+  const [viewingLedger, setViewingLedger] = useState<Ledger | null>(null);
+  const [members, setMembers] = useState<Array<{ user_id: string; email: string; role: string }>>([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
 
   // Create modal state
   const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -105,6 +113,55 @@ export default function LedgerManageScreen() {
     loadLedgers();
   }, [loadLedgers]);
 
+  // Auto-sync from cloud when entering this page
+  useFocusEffect(
+    useCallback(() => {
+      if (isLoggedIn) {
+        fullSync().then(() => loadLedgers()).catch(console.warn);
+      }
+    }, [isLoggedIn, loadLedgers])
+  );
+
+  const handleViewMembers = useCallback(async (ledger: Ledger) => {
+    setViewingLedger(ledger);
+    setMembersModalVisible(true);
+    setLoadingMembers(true);
+    try {
+      // Try Supabase first for fresh data
+      if (isLoggedIn) {
+        const { data } = await supabase
+          .from('ledger_members')
+          .select('user_id, email, role')
+          .eq('ledger_id', ledger.id);
+        if (data && data.length > 0) {
+          setMembers(data as any);
+          // Also update local DB
+          const db = await getDatabase();
+          for (const m of data as any[]) {
+            await db.runAsync(
+              `INSERT OR REPLACE INTO ledger_members (ledger_id, user_id, email, role)
+               VALUES (?, ?, ?, ?)`,
+              ledger.id, m.user_id, m.email || '', m.role || 'member'
+            );
+          }
+          setLoadingMembers(false);
+          return;
+        }
+      }
+      // Fallback to local
+      const db = await getDatabase();
+      const rows = await db.getAllAsync<any>(
+        'SELECT user_id, email, role FROM ledger_members WHERE ledger_id = ?',
+        ledger.id
+      );
+      setMembers(rows as any);
+    } catch (e) {
+      console.warn('Failed to load members:', e);
+    } finally {
+      setLoadingMembers(false);
+    }
+  }, [isLoggedIn]);
+
   const handleCreateLedger = async () => {
     if (isCreating) return;
     const name = newLedgerName.trim();
@@ -128,8 +185,8 @@ export default function LedgerManageScreen() {
 
       // Insert member locally
       await db.runAsync(
-        'INSERT INTO ledger_members (ledger_id, user_id, role) VALUES (?, ?, ?)',
-        id, userId, 'owner'
+        'INSERT INTO ledger_members (ledger_id, user_id, email, role) VALUES (?, ?, ?, ?)',
+        id, userId, userEmail || '', 'owner'
       );
 
       // Add to sync queue so it gets uploaded to Supabase
@@ -139,7 +196,7 @@ export default function LedgerManageScreen() {
       );
       await db.runAsync(
         'INSERT INTO sync_queue (table_name, record_id, operation, payload) VALUES (?, ?, ?, ?)',
-        'ledger_members', `${id}_${userId}`, 'insert', JSON.stringify({ ledger_id: id, user_id: userId, role: 'owner' })
+        'ledger_members', `${id}_${userId}`, 'insert', JSON.stringify({ ledger_id: id, user_id: userId, email: userEmail, role: 'owner' })
       );
 
       // Sync to Supabase immediately
@@ -149,7 +206,7 @@ export default function LedgerManageScreen() {
           id, name, invite_code: inviteCode, owner_id: userId, created_at: now,
         });
         const { error: memberErr } = await supabase.from('ledger_members').upsert({
-          ledger_id: id, user_id: userId, role: 'owner',
+          ledger_id: id, user_id: userId, email: userEmail || null, role: 'owner',
         });
         if (!ledgerErr && !memberErr) {
           synced = true;
@@ -215,9 +272,16 @@ export default function LedgerManageScreen() {
         }
 
         await db.runAsync(
-          'INSERT INTO ledger_members (ledger_id, user_id, role) VALUES (?, ?, ?)',
-          localLedger.id, userId, 'member'
+          'INSERT INTO ledger_members (ledger_id, user_id, email, role) VALUES (?, ?, ?, ?)',
+          localLedger.id, userId, userEmail || '', 'member'
         );
+
+        // Sync to Supabase
+        try {
+          await supabase.from('ledger_members').upsert({
+            ledger_id: localLedger.id, user_id: userId, email: userEmail || null, role: 'member',
+          }, { onConflict: 'ledger_id,user_id' });
+        } catch {}
 
         setJoinModalVisible(false);
         setJoinCode('');
@@ -262,17 +326,18 @@ export default function LedgerManageScreen() {
 
       // Add member locally
       await db.runAsync(
-        'INSERT OR IGNORE INTO ledger_members (ledger_id, user_id, role) VALUES (?, ?, ?)',
-        data.id, userId, 'member'
+        'INSERT OR IGNORE INTO ledger_members (ledger_id, user_id, email, role) VALUES (?, ?, ?, ?)',
+        data.id, userId, userEmail || '', 'member'
       );
 
       // Register on Supabase
       try {
-        await supabase.from('ledger_members').insert({
+        await supabase.from('ledger_members').upsert({
           ledger_id: data.id,
           user_id: userId,
+          email: userEmail || null,
           role: 'member',
-        });
+        }, { onConflict: 'ledger_id,user_id' });
       } catch {
         // Will sync later
       }
@@ -371,22 +436,30 @@ export default function LedgerManageScreen() {
           <View style={styles.ledgerInfo}>
             <Text style={[styles.ledgerName, { color: colors.text }]}>{item.name}</Text>
             {!isDefault && (
-              <View style={styles.ledgerMeta}>
-                <Text style={[styles.ledgerMetaText, { color: colors.textSecondary }]}>
-                  {item.memberCount} 位成员
-                </Text>
-                {item.inviteCode && (
+              <>
+                <View style={styles.ledgerMeta}>
                   <TouchableOpacity
-                    onPress={() => handleInviteCodeTap(item.inviteCode!)}
+                    onPress={() => handleViewMembers(item)}
                     activeOpacity={0.6}
                     hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                   >
                     <Text style={[styles.ledgerMetaText, { color: colors.primary }]}>
-                      {'  |  '}邀请码: {item.inviteCode}
+                      {item.memberCount} 位成员 ›
                     </Text>
                   </TouchableOpacity>
-                )}
-              </View>
+                  {item.inviteCode && (
+                    <TouchableOpacity
+                      onPress={() => handleInviteCodeTap(item.inviteCode!)}
+                      activeOpacity={0.6}
+                      hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+                    >
+                      <Text style={[styles.ledgerMetaText, { color: colors.primary }]}>
+                        {'  |  '}邀请码: {item.inviteCode}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </>
             )}
             {isDefault && (
               <Text style={[styles.ledgerMetaText, { color: colors.textSecondary }]}>
@@ -624,6 +697,68 @@ export default function LedgerManageScreen() {
 
       {renderCreateModal()}
       {renderJoinModal()}
+
+      {/* Members modal */}
+      <Modal
+        visible={membersModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMembersModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              {viewingLedger?.name} 的成员
+            </Text>
+            {loadingMembers ? (
+              <ActivityIndicator size="large" color={colors.primary} style={{ marginVertical: 24 }} />
+            ) : members.length === 0 ? (
+              <Text style={[styles.joinHint, { color: colors.textSecondary }]}>暂无成员数据</Text>
+            ) : (
+              <View style={{ gap: 10, marginVertical: 12 }}>
+                {members.map((m) => (
+                  <View
+                    key={m.user_id}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: 12,
+                      backgroundColor: colors.background,
+                      borderRadius: 10,
+                    }}
+                  >
+                    <View style={{
+                      width: 36, height: 36, borderRadius: 18,
+                      backgroundColor: colors.primaryLight,
+                      alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Ionicons name="person" size={18} color={colors.primary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ color: colors.text, fontSize: 14, fontWeight: '500' }} numberOfLines={1}>
+                        {m.email || m.user_id.slice(0, 8) + '...'}
+                      </Text>
+                      <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>
+                        {m.role === 'owner' ? '账本所有者' : '成员'}
+                      </Text>
+                    </View>
+                    {m.user_id === userId && (
+                      <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '600' }}>我</Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+            <TouchableOpacity
+              style={[styles.modalButtonFull, { backgroundColor: colors.primary, marginTop: 8 }]}
+              onPress={() => setMembersModalVisible(false)}
+            >
+              <Text style={[styles.modalButtonText, { color: '#FFFFFF' }]}>关闭</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={leaveConfirmVisible}

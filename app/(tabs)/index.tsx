@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { fullSync } from '../../src/sync/syncEngine';
+import { useAuthStore } from '../../src/stores/authStore';
 import dayjs from 'dayjs';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { useBillStore } from '../../src/stores/billStore';
@@ -49,12 +51,25 @@ export default function HomeScreen() {
   const [filterVisible, setFilterVisible] = useState(false);
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria | null>(null);
 
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+
   // Reload data every time this tab becomes focused (e.g. after adding a bill)
   useFocusEffect(
     useCallback(() => {
-      loadBills();
-      loadCategories();
-    }, [])
+      // Trigger cloud sync first if logged in (non-blocking)
+      if (isLoggedIn) {
+        fullSync().then(() => {
+          loadBills();
+          loadCategories();
+        }).catch(() => {
+          loadBills();
+          loadCategories();
+        });
+      } else {
+        loadBills();
+        loadCategories();
+      }
+    }, [isLoggedIn])
   );
 
   // Build filtered + grouped sections

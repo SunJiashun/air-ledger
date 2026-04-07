@@ -36,12 +36,20 @@ async function initDatabase(database: SQLite.SQLiteDatabase): Promise<void> {
     CREATE TABLE IF NOT EXISTS ledger_members (
       ledger_id TEXT NOT NULL,
       user_id TEXT NOT NULL,
+      email TEXT,
       role TEXT NOT NULL DEFAULT 'member',
       joined_at TEXT NOT NULL DEFAULT (datetime('now')),
       PRIMARY KEY (ledger_id, user_id),
       FOREIGN KEY (ledger_id) REFERENCES ledgers(id)
     )
   `);
+
+  // Migration: add email column to existing ledger_members table
+  try {
+    await database.execAsync('ALTER TABLE ledger_members ADD COLUMN email TEXT');
+  } catch {
+    // column already exists
+  }
 
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS categories (

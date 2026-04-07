@@ -69,7 +69,11 @@ export async function insertBill(bill: {
 
   await db.runAsync(
     'INSERT INTO sync_queue (table_name, record_id, operation, payload) VALUES (?, ?, ?, ?)',
-    'bills', id, 'insert', JSON.stringify({ ...bill, id, created_at: now, updated_at: now })
+    'bills', id, 'insert', JSON.stringify({
+      id, amount: bill.amount, type: bill.type, category_id: bill.categoryId,
+      date: bill.date, note, user_id: userId, ledger_id: ledgerId,
+      created_at: now, updated_at: now,
+    })
   );
 
   return id;

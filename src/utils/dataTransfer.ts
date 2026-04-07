@@ -23,15 +23,27 @@ const EXPORT_VERSION = 1;
 const APP_NAME = 'minimalist-ledger';
 
 /**
- * 导出所有本地数据为 JSON
+ * 导出个人账本数据为 JSON
+ * 仅包含个人账本，避免共享账本数据的隐私问题
  */
 export async function exportData(): Promise<ExportData> {
   const db = await getDatabase();
 
-  const ledgers = await db.getAllAsync('SELECT * FROM ledgers');
-  const ledgerMembers = await db.getAllAsync('SELECT * FROM ledger_members');
-  const categories = await db.getAllAsync('SELECT * FROM categories WHERE is_custom = 1 AND is_deleted = 0');
-  const bills = await db.getAllAsync('SELECT * FROM bills WHERE is_deleted = 0');
+  // Only export default (personal) ledger
+  const ledgers = await db.getAllAsync(
+    "SELECT * FROM ledgers WHERE id = 'default-ledger'"
+  );
+  const ledgerMembers = await db.getAllAsync(
+    "SELECT * FROM ledger_members WHERE ledger_id = 'default-ledger'"
+  );
+  // Only custom categories belonging to personal ledger or no ledger
+  const categories = await db.getAllAsync(
+    "SELECT * FROM categories WHERE is_custom = 1 AND is_deleted = 0 AND (ledger_id = 'default-ledger' OR ledger_id IS NULL OR ledger_id = '')"
+  );
+  // Only personal ledger bills
+  const bills = await db.getAllAsync(
+    "SELECT * FROM bills WHERE is_deleted = 0 AND (ledger_id = 'default-ledger' OR ledger_id IS NULL OR ledger_id = '')"
+  );
 
   return {
     version: EXPORT_VERSION,

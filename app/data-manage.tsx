@@ -265,7 +265,7 @@ export default function DataManageScreen() {
         <Text style={[styles.transferTitle, { color: colors.text }]}>数据迁移</Text>
       </View>
       <Text style={[styles.transferDesc, { color: colors.textSecondary }]}>
-        导出本地数据为文件，用于换手机或备份。导入时会合并到当前数据中。
+        导出个人账本的数据为文件，用于换手机或备份。共享账本的数据请通过云同步迁移。
       </Text>
       <View style={styles.transferButtons}>
         <TouchableOpacity

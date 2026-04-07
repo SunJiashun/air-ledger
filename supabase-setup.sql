@@ -84,11 +84,10 @@ CREATE POLICY "Authenticated users can create ledgers" ON ledgers
 CREATE POLICY "Owner can update ledger" ON ledgers
   FOR UPDATE USING (owner_id = auth.uid());
 
--- ledger_members: 成员可读，可加入/退出
-CREATE POLICY "Members can view members" ON ledger_members
-  FOR SELECT USING (
-    ledger_id IN (SELECT ledger_id FROM ledger_members WHERE user_id = auth.uid())
-  );
+-- ledger_members: 已认证用户可读所有成员记录（避免 RLS 递归问题）
+-- 真正的隔离由 ledgers 表的 RLS 控制
+CREATE POLICY "Authenticated users can view members" ON ledger_members
+  FOR SELECT USING (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Users can join ledgers" ON ledger_members
   FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -96,17 +95,17 @@ CREATE POLICY "Users can join ledgers" ON ledger_members
 CREATE POLICY "Users can leave ledgers" ON ledger_members
   FOR DELETE USING (auth.uid() = user_id);
 
--- bills: 账本成员可读写
-CREATE POLICY "Members can view bills" ON bills
+-- bills: 用户可以读写自己的账单 + 共享账本里所有成员的账单
+CREATE POLICY "Users can view own bills" ON bills
+  FOR SELECT USING (user_id = auth.uid());
+
+CREATE POLICY "Members can view shared bills" ON bills
   FOR SELECT USING (
     ledger_id IN (SELECT ledger_id FROM ledger_members WHERE user_id = auth.uid())
   );
 
-CREATE POLICY "Members can insert bills" ON bills
-  FOR INSERT WITH CHECK (
-    auth.uid() = user_id AND
-    ledger_id IN (SELECT ledger_id FROM ledger_members WHERE user_id = auth.uid())
-  );
+CREATE POLICY "Users can insert own bills" ON bills
+  FOR INSERT WITH CHECK (user_id = auth.uid());
 
 CREATE POLICY "Users can update own bills" ON bills
   FOR UPDATE USING (user_id = auth.uid());

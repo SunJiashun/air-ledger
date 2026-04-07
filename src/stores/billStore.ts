@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as billDao from '../db/billDao';
+import { useAuthStore } from './authStore';
 import dayjs from 'dayjs';
 
 interface BillState {
@@ -55,7 +56,10 @@ export const useBillStore = create<BillState>()(
 
       addBill: async (bill) => {
         const { currentLedgerId } = get();
-        await billDao.insertBill({ ...bill, ledgerId: currentLedgerId });
+        const { userId, isLoggedIn } = useAuthStore.getState();
+        // Use Supabase auth uid when logged in, otherwise local-user
+        const effectiveUserId = isLoggedIn && userId !== 'local-user' ? userId : 'local-user';
+        await billDao.insertBill({ ...bill, ledgerId: currentLedgerId, userId: effectiveUserId });
         await get().loadBills();
       },
 
