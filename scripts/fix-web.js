@@ -59,10 +59,27 @@ if (fs.existsSync(redirectsSrc)) {
 
 fs.writeFileSync(indexPath, html);
 
-// Fix 4: 404.html fallback for GitHub Pages SPA routing
+// Fix 4: rewrite asset paths inside JS bundles (fonts, images loaded at runtime)
+if (BASE_PATH && BASE_PATH !== '/') {
+  function rewriteBundle(file) {
+    let content = fs.readFileSync(file, 'utf-8');
+    // Rewrite "/assets/..." paths inside strings to include base path
+    content = content.replace(/"\/assets\//g, `"${BASE_PATH}/assets/`);
+    content = content.replace(/'\/assets\//g, `'${BASE_PATH}/assets/`);
+    fs.writeFileSync(file, content);
+  }
+  const jsDir = path.join(distDir, '_expo', 'static', 'js', 'web');
+  if (fs.existsSync(jsDir)) {
+    for (const f of fs.readdirSync(jsDir)) {
+      if (f.endsWith('.js')) rewriteBundle(path.join(jsDir, f));
+    }
+  }
+}
+
+// Fix 5: 404.html fallback for GitHub Pages SPA routing
 fs.copyFileSync(indexPath, path.join(distDir, '404.html'));
 
-// Fix 5: .nojekyll prevents GitHub Pages from ignoring _expo/ folder
+// Fix 6: .nojekyll prevents GitHub Pages from ignoring _expo/ folder
 fs.writeFileSync(path.join(distDir, '.nojekyll'), '');
 
-console.log('✅ Fixed index.html (module, base path rewrite, SPA fallback, .nojekyll)');
+console.log('✅ Fixed index.html + JS bundles (module, base path rewrite, fonts, SPA fallback, .nojekyll)');
