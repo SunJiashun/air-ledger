@@ -5,18 +5,49 @@ const distDir = path.join(__dirname, '..', 'dist');
 const indexPath = path.join(distDir, 'index.html');
 let html = fs.readFileSync(indexPath, 'utf-8');
 
+const BASE_PATH = process.env.BASE_PATH || '/air-ledger';
+
 // Fix 1: add type="module" to script tags for import.meta support
 html = html.replace(/<script src="(.*?)" defer><\/script>/g, '<script src="$1" type="module"></script>');
 
-// Fix 2: GitHub Pages subpath support
-// GitHub Pages deploys under /air-ledger/, so absolute paths like /_expo/... become 404
-// Rewrite all absolute paths to be relative to the page
-const BASE_PATH = process.env.BASE_PATH || '/air-ledger';
+// Fix 2: rewrite absolute asset paths to include base path
 if (BASE_PATH && BASE_PATH !== '/') {
   html = html.replace(/src="\/_expo\//g, `src="${BASE_PATH}/_expo/`);
   html = html.replace(/href="\/favicon/g, `href="${BASE_PATH}/favicon`);
   html = html.replace(/src="\/assets\//g, `src="${BASE_PATH}/assets/`);
   html = html.replace(/href="\/assets\//g, `href="${BASE_PATH}/assets/`);
+
+  // Fix 3: use a script to rewrite history.pushState/replaceState so that
+  // Expo Router thinks it's at root. This trick strips the base path from
+  // the pathname seen by React, so the router matches routes correctly.
+  const basePathScript = `
+  <script>
+    (function() {
+      var basePath = ${JSON.stringify(BASE_PATH)};
+      // Rewrite the URL so Expo Router sees the path without the base
+      if (location.pathname.indexOf(basePath) === 0) {
+        var newPath = location.pathname.slice(basePath.length) || '/';
+        history.replaceState(null, '', newPath + location.search + location.hash);
+      }
+      // Patch pushState/replaceState so navigation stays within base path
+      var origPush = history.pushState;
+      var origReplace = history.replaceState;
+      history.pushState = function(state, title, url) {
+        if (typeof url === 'string' && url.indexOf(basePath) !== 0 && url.indexOf('http') !== 0) {
+          url = basePath + (url.startsWith('/') ? url : '/' + url);
+        }
+        return origPush.call(this, state, title, url);
+      };
+      history.replaceState = function(state, title, url) {
+        if (typeof url === 'string' && url.indexOf(basePath) !== 0 && url.indexOf('http') !== 0) {
+          url = basePath + (url.startsWith('/') ? url : '/' + url);
+        }
+        return origReplace.call(this, state, title, url);
+      };
+    })();
+  </script>
+  `;
+  html = html.replace('</head>', basePathScript + '</head>');
 }
 
 // Copy _redirects for Netlify SPA routing
@@ -28,12 +59,10 @@ if (fs.existsSync(redirectsSrc)) {
 
 fs.writeFileSync(indexPath, html);
 
-// Fix 3: GitHub Pages SPA routing via 404.html fallback
-// GitHub Pages serves 404.html for any unmatched route. If it's identical to index.html,
-// the SPA router will handle the route client-side.
+// Fix 4: 404.html fallback for GitHub Pages SPA routing
 fs.copyFileSync(indexPath, path.join(distDir, '404.html'));
 
-// Fix 4: Disable Jekyll (prevents _expo/ folder from being ignored by GitHub Pages)
+// Fix 5: .nojekyll prevents GitHub Pages from ignoring _expo/ folder
 fs.writeFileSync(path.join(distDir, '.nojekyll'), '');
 
-console.log('✅ Fixed index.html (module, GitHub Pages base path, SPA fallback, .nojekyll)');
+console.log('✅ Fixed index.html (module, base path rewrite, SPA fallback, .nojekyll)');
