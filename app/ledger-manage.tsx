@@ -382,7 +382,7 @@ export default function LedgerManageScreen() {
                     hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                   >
                     <Text style={[styles.ledgerMetaText, { color: colors.primary }]}>
-                      {'  |  '}邀请码: {item.inviteCode}（双击复制）
+                      {'  |  '}邀请码: {item.inviteCode}
                     </Text>
                   </TouchableOpacity>
                 )}
